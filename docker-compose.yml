@@ -1,0 +1,60 @@
+version: "3.8"
+
+volumes:
+  storage_data:
+  gateway_logs:
+  tms_logs:
+
+networks:
+  tms:
+
+services:
+  database:
+    image: postgres:14.3-alpine
+    env_file: ./micro_services/storage/.env
+    restart: unless-stopped
+    volumes:
+      - storage_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - tms
+
+  storage:
+    container_name: storage
+    stdin_open: true
+    tty: true
+    build:
+      context: ./micro_services/storage
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    volumes:
+      - ./micro_services/storage/src/:/app/src/
+      - ./micro_services/storage/prisma/:/app/prisma/
+    environment:
+      PORT: 3000
+    networks:
+      - tms
+
+  gateway:
+    container_name: gateway
+    stdin_open: true
+    tty: true
+    build:
+      context: ./micro_services/gateway
+      dockerfile: Dockerfile
+    depends_on:
+      - storage
+    volumes:
+      - ./micro_services/gateway/src/:/app/src/
+      - ./micro_services/gateway/public/:/app/public/
+      - tms_logs:/var/log/gateway
+    environment:
+      PORT: 3000
+      STORAGE_URL: "http://storage:3000"
+      LOGS_PATH: "/var/log/gateway"
+    ports:
+      - "3000:3000"
+    networks:
+      - tms

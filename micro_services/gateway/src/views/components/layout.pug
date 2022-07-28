@@ -1,0 +1,31 @@
+html
+    head
+        if pageTitle
+            title Страница магазина - #{title}
+        else
+            title Интернет магазин телефонов
+        link(rel='stylesheet', href='/styles/materialize.css')
+
+    body
+        #app
+            block header
+                #navigation.container
+                    h2 Навигация
+                    ul.row
+                        a(href= "/")
+                            li.col.s2.offset-s6.waves-light.btn-small Главная
+                        a(href= "/login").col.s2
+                            li.waves-light.btn-small Вход
+                        a(href= "/products").col.s2
+                            li.waves-light.btn-small Телефоны
+            .container
+                block content
+            block foot
+                #footer.row
+                    .col.s12.blue
+                        p Спасибо что посетили наш сайт
+                        p Пока
+
+            block scripts
+                script(src='scripts/materialize.js')
+                script(src='https://cdn.socket.io/4.4.1/socket.io.min.js')

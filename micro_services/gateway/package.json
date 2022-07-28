@@ -1,0 +1,31 @@
+{
+  "name": "lesson_44",
+  "version": "1.0.0",
+  "description": "tms node js 44 lesson",
+  "main": "src/app.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "dev": "PORT=3000 nodemon src/app.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "formidable": "^2.0.1",
+    "got": "^12.1.0",
+    "got-cjs": "^12.0.1",
+    "joi": "^17.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "nanoid": "^3.3.4",
+    "pug": "^3.0.2",
+    "socket.io": "^4.5.1",
+    "winston": "^3.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.35",
+    "nodemon": "^2.0.16",
+    "prisma": "3.12.0"
+  }
+}
