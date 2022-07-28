@@ -54,7 +54,7 @@ module.exports = async () => {
         correlationId: msg.properties.correlationId,
       })
     } finally {
-      channel.ack(msg)
+      appChannel.ack(msg)
     }
   })
 }

@@ -10,7 +10,7 @@ const APP_QUEUE = 'APP_QUEUE'
 const createRpcCallChannel = async (conn) => {
   const channel = await conn.createChannel()
   await channel.assertQueue(REPLY_QUEUE)
-  // await channel.assertQueue(APP_QUEUE)
+  await channel.assertQueue(APP_QUEUE)
   channel.responseEmitter = new EventEmitter()
   channel.responseEmitter.setMaxListeners(Infinity)
   channel.consume(REPLY_QUEUE, async (msg) => {
