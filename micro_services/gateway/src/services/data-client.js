@@ -29,9 +29,9 @@ exports.getUserByEmail = (email) => {
         .then(data => data ? data.user : null)
 }
 
-exports.createNewUser = (json) => {
-    return instance.post(`${storageUrl}/user`, { json }).json()
-}
+// exports.createNewUser = (json) => {
+//     return instance.post(`${storageUrl}/user`, { json }).json()
+// }
 
 exports.updateProductImage = (productId, imagePath) => {
     return instance.put(`${storageUrl}/product/${productId}/image`, { json: { imagePath } }).json()

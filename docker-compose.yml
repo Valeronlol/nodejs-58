@@ -4,6 +4,7 @@ volumes:
   storage_data:
   gateway_logs:
   tms_logs:
+  message_broker_data:
 
 networks:
   tms:
@@ -20,6 +21,16 @@ services:
     networks:
       - tms
 
+  message_broker:
+    image: rabbitmq:3.10-management-alpine
+    restart: unless-stopped
+    volumes:
+      - message_broker_data:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+    networks:
+      - tms
+
   storage:
     container_name: storage
     stdin_open: true
@@ -29,13 +40,34 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - database
+      - message_broker
     volumes:
       - ./micro_services/storage/src/:/app/src/
       - ./micro_services/storage/prisma/:/app/prisma/
     environment:
       PORT: 3000
+      AMQT_ADDRESS: amqp://message_broker:5672
     networks:
       - tms
+
+#  storage_2:
+#    container_name: storage_2
+#    stdin_open: true
+#    tty: true
+#    build:
+#      context: ./micro_services/storage
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - database
+#      - message_broker
+#    volumes:
+#      - ./micro_services/storage/src/:/app/src/
+#      - ./micro_services/storage/prisma/:/app/prisma/
+#    environment:
+#      PORT: 3000
+#      AMQT_ADDRESS: amqp://message_broker:5672
+#    networks:
+#      - tms
 
   gateway:
     container_name: gateway
@@ -46,6 +78,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - storage
+      - message_broker
     volumes:
       - ./micro_services/gateway/src/:/app/src/
       - ./micro_services/gateway/public/:/app/public/
@@ -54,6 +87,7 @@ services:
       PORT: 3000
       STORAGE_URL: "http://storage:3000"
       LOGS_PATH: "/var/log/gateway"
+      AMQT_ADDRESS: amqp://message_broker:5672
     ports:
       - "3000:3000"
     networks:

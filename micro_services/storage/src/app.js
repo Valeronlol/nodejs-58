@@ -3,13 +3,22 @@ const app = new Koa()
 const bodyParser = require('koa-bodyparser')
 const router = require('./router')
 const errorHandler = require('./middleware/global-error-handler')
+const initAmqt = require('./services/amqt')
+const { wait } = require('./utils/helpers')
 
 const port = parseInt(process.env.PORT) || 3000
 
-app.use(errorHandler)
-app.use(bodyParser())
-app.use(router.routes())
+async function main () {
+    await wait(3000)
+    await initAmqt()
+    console.log(`Message broker started!`)
 
-app.listen(port, () => {
-    console.log(`We are listeting internal http://127.0.0.1:${port}`)
-})
+    app.use(errorHandler)
+    app.use(bodyParser())
+    app.use(router.routes())
+
+    app.listen(port, () => {
+        console.log(`We are listening http://127.0.0.1:${port}`)
+    })
+}
+main()

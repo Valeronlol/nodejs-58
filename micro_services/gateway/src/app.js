@@ -8,31 +8,42 @@ const { Server } = require('socket.io')
 const handleError = require('./utils/global-error-handler')
 const logger = require('./utils/logger')
 const connectLogger = require('./utils/connect-logger')
-
-const app = express()
-const httpServer = createServer(app);
-const io = new Server(httpServer);
-
-io.on('connection', (socket) => {
-  setInterval(() => {
-    socket.send('HELLO', {test: 1})
-  }, 4000)
-});
-
+const initAmqt = require('./services/amqt')
 const router = require('./router')
+const { wait } = require('./utils/helpers')
 
 const port = parseInt(process.env.PORT) || 3000
 
-app.set('views', join(__dirname, 'views'))
-app.set('view engine', 'pug')
+async function main () {
+  const app = express()
+  const httpServer = createServer(app)
+  const io = new Server(httpServer)
+  
+  await wait(3000)
+  const amqt = await initAmqt()
+  logger.info(`Message broker started!`)
 
-app.use(connectLogger)
-app.use(express.json())
-app.use(express.static(join(__dirname, '../', 'public')))
-app.use('/', router)
+  io.on('connection', (socket) => {
+    setInterval(() => {
+      socket.send('HELLO', {test: 1})
+    }, 4000)
+  })
 
-app.use(handleError)
+  app.set('views', join(__dirname, 'views'))
+  app.set('view engine', 'pug')
 
-httpServer.listen(port, () => {
-  logger.info(`Server started on port ${port}!`)
-})
+  app.use((req, res, next) => {
+    req.amqt = amqt
+    next()
+  })
+  app.use(connectLogger)
+  app.use(express.json())
+  app.use(express.static(join(__dirname, '../', 'public')))
+  app.use('/', router)
+  app.use(handleError)
+
+  httpServer.listen(port, () => {
+    logger.info(`Server started on port ${port}!`)
+  })
+}
+main()
